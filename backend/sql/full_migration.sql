@@ -1,17 +1,58 @@
 -- =============================================
--- 智慧数据平台 - 数据库建表脚本
--- 创建日期: 2026-05-23
--- 数据库: kg_system
+-- 完整数据库迁移脚本
+-- 1. 备份现有数据
+-- 2. 删除旧表
+-- 3. 创建新表结构
+-- 4. 恢复数据（可选）
 -- =============================================
-
-CREATE DATABASE IF NOT EXISTS kg_system DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE kg_system;
 
 -- =============================================
--- 1. 用户表
+-- 步骤1: 备份（如果需要保留数据，取消下面注释）
 -- =============================================
-CREATE TABLE IF NOT EXISTS sys_user (
+-- CREATE TABLE IF NOT EXISTS backup_sys_industry AS SELECT * FROM sys_industry;
+-- CREATE TABLE IF NOT EXISTS backup_sys_user AS SELECT * FROM sys_user;
+-- CREATE TABLE IF NOT EXISTS backup_sys_role AS SELECT * FROM sys_role;
+-- CREATE TABLE IF NOT EXISTS backup_sys_permission AS SELECT * FROM sys_permission;
+-- CREATE TABLE IF NOT EXISTS backup_sys_menu AS SELECT * FROM sys_menu;
+-- CREATE TABLE IF NOT EXISTS backup_company AS SELECT * FROM company;
+-- CREATE TABLE IF NOT EXISTS backup_news AS SELECT * FROM news;
+-- CREATE TABLE IF NOT EXISTS backup_data_task AS SELECT * FROM data_task;
+-- CREATE TABLE IF NOT EXISTS backup_graph_node AS SELECT * FROM graph_node;
+-- CREATE TABLE IF NOT EXISTS backup_graph_edge AS SELECT * FROM graph_edge;
+-- CREATE TABLE IF NOT EXISTS backup_sys_user_role AS SELECT * FROM sys_user_role;
+-- CREATE TABLE IF NOT EXISTS backup_sys_role_permission AS SELECT * FROM sys_role_permission;
+-- CREATE TABLE IF NOT EXISTS backup_sys_role_menu AS SELECT * FROM sys_role_menu;
+
+-- =============================================
+-- 步骤2: 删除所有表（按外键依赖顺序）
+-- =============================================
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS sys_role_menu;
+DROP TABLE IF EXISTS sys_role_permission;
+DROP TABLE IF EXISTS sys_user_role;
+DROP TABLE IF EXISTS graph_edge;
+DROP TABLE IF EXISTS graph_node;
+DROP TABLE IF EXISTS data_task;
+DROP TABLE IF EXISTS news;
+DROP TABLE IF EXISTS company;
+DROP TABLE IF EXISTS sys_industry;
+DROP TABLE IF EXISTS sys_menu;
+DROP TABLE IF EXISTS sys_permission;
+DROP TABLE IF EXISTS sys_role;
+DROP TABLE IF EXISTS sys_user;
+DROP TABLE IF EXISTS kg_industry;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================
+-- 步骤3: 重新创建所有表（使用最新结构）
+-- =============================================
+
+-- 1. 用户表
+CREATE TABLE sys_user (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
     password VARCHAR(255) NOT NULL COMMENT '密码',
@@ -26,10 +67,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
--- =============================================
 -- 2. 角色表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_role (
+CREATE TABLE sys_role (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE COMMENT '角色名称',
     code VARCHAR(50) NOT NULL UNIQUE COMMENT '角色编码',
@@ -41,10 +80,8 @@ CREATE TABLE IF NOT EXISTS sys_role (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
--- =============================================
 -- 3. 用户角色关联表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_user_role (
+CREATE TABLE sys_user_role (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL COMMENT '用户ID',
     role_id BIGINT NOT NULL COMMENT '角色ID',
@@ -55,10 +92,8 @@ CREATE TABLE IF NOT EXISTS sys_user_role (
     INDEX idx_role_id (role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
--- =============================================
 -- 4. 权限表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_permission (
+CREATE TABLE sys_permission (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL COMMENT '权限名称',
     code VARCHAR(100) NOT NULL UNIQUE COMMENT '权限编码',
@@ -72,10 +107,8 @@ CREATE TABLE IF NOT EXISTS sys_permission (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
--- =============================================
 -- 5. 角色权限关联表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_role_permission (
+CREATE TABLE sys_role_permission (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     role_id BIGINT NOT NULL COMMENT '角色ID',
     permission_id BIGINT NOT NULL COMMENT '权限ID',
@@ -86,10 +119,8 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
     INDEX idx_permission_id (permission_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
--- =============================================
 -- 6. 菜单表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_menu (
+CREATE TABLE sys_menu (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     parent_id BIGINT DEFAULT 0 COMMENT '父菜单ID',
     name VARCHAR(50) NOT NULL COMMENT '菜单名称',
@@ -106,10 +137,8 @@ CREATE TABLE IF NOT EXISTS sys_menu (
     INDEX idx_sort (sort)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜单表';
 
--- =============================================
 -- 7. 角色菜单关联表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_role_menu (
+CREATE TABLE sys_role_menu (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     role_id BIGINT NOT NULL COMMENT '角色ID',
     menu_id BIGINT NOT NULL COMMENT '菜单ID',
@@ -120,10 +149,8 @@ CREATE TABLE IF NOT EXISTS sys_role_menu (
     INDEX idx_menu_id (menu_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色菜单关联表';
 
--- =============================================
 -- 8. 行业表
--- =============================================
-CREATE TABLE IF NOT EXISTS sys_industry (
+CREATE TABLE sys_industry (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     parent_id BIGINT DEFAULT 0 COMMENT '父行业ID',
     name VARCHAR(100) NOT NULL COMMENT '行业名称',
@@ -137,10 +164,8 @@ CREATE TABLE IF NOT EXISTS sys_industry (
     INDEX idx_sort (sort)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行业表';
 
--- =============================================
 -- 9. 企业表
--- =============================================
-CREATE TABLE IF NOT EXISTS company (
+CREATE TABLE company (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     industry_id BIGINT NOT NULL COMMENT '行业ID',
     name VARCHAR(200) NOT NULL COMMENT '企业名称',
@@ -159,10 +184,8 @@ CREATE TABLE IF NOT EXISTS company (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业表';
 
--- =============================================
 -- 10. 新闻表
--- =============================================
-CREATE TABLE IF NOT EXISTS news (
+CREATE TABLE news (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     company_id BIGINT NOT NULL COMMENT '企业ID',
     title VARCHAR(500) NOT NULL COMMENT '新闻标题',
@@ -180,10 +203,8 @@ CREATE TABLE IF NOT EXISTS news (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='新闻表';
 
--- =============================================
 -- 11. 数据任务表
--- =============================================
-CREATE TABLE IF NOT EXISTS data_task (
+CREATE TABLE data_task (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     industry_id BIGINT NOT NULL COMMENT '行业ID',
     industry_name VARCHAR(100) COMMENT '行业名称',
@@ -199,10 +220,8 @@ CREATE TABLE IF NOT EXISTS data_task (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据任务表';
 
--- =============================================
 -- 12. 图节点表
--- =============================================
-CREATE TABLE IF NOT EXISTS graph_node (
+CREATE TABLE graph_node (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200) NOT NULL COMMENT '节点名称',
     type VARCHAR(50) COMMENT '节点类型',
@@ -216,10 +235,8 @@ CREATE TABLE IF NOT EXISTS graph_node (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图节点表';
 
--- =============================================
 -- 13. 图边表
--- =============================================
-CREATE TABLE IF NOT EXISTS graph_edge (
+CREATE TABLE graph_edge (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     source_node_id BIGINT NOT NULL COMMENT '源节点ID',
     target_node_id BIGINT NOT NULL COMMENT '目标节点ID',
@@ -236,5 +253,16 @@ CREATE TABLE IF NOT EXISTS graph_edge (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图边表';
 
 -- =============================================
--- 数据库建表完成
+-- 步骤4: 恢复数据（如果之前备份了，取消下面注释）
 -- =============================================
+-- 注意：需要根据实际备份表结构调整
+-- INSERT INTO sys_industry SELECT * FROM backup_sys_industry;
+-- INSERT INTO sys_user SELECT * FROM backup_sys_user;
+-- INSERT INTO sys_role SELECT * FROM backup_sys_role;
+-- ... 其他表
+
+-- =============================================
+-- 完成
+-- =============================================
+SELECT 'Database migration completed successfully!' AS message;
+SHOW TABLES;

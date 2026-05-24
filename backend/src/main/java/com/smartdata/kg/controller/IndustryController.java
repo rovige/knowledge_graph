@@ -33,6 +33,11 @@ public class IndustryController {
         return Result.success(industryService.listAll());
     }
 
+    @GetMapping("/with-data")
+    public Result<List<Industry>> listWithData() {
+        return Result.success(industryService.listWithData());
+    }
+
     @GetMapping("/{id}")
     public Result<Industry> getById(@PathVariable Long id) {
         Industry industry = industryService.getById(id);

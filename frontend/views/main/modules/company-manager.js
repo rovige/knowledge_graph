@@ -22,7 +22,6 @@ const CompanyManager = {
 
     container.innerHTML = this.companies.map(company => `
       <div class="company-item" data-id="${company.id}" onclick="CompanyManager.selectCompany(${company.id})">
-        <div class="company-rank">${company.ranking}</div>
         <div class="company-info">
           <div class="company-name">${company.name}</div>
           <div class="company-legal">法人: ${company.legalRepresentative || '-'}</div>
@@ -63,7 +62,6 @@ const CompanyManager = {
         <div class="detail-item"><span class="label">地址:</span> <span class="value">${this.currentCompany.address || '-'}</span></div>
         <div class="detail-item"><span class="label">注册资本:</span> <span class="value">${this.currentCompany.registeredCapital ? (this.currentCompany.registeredCapital + ' 元') : '-'}</span></div>
         <div class="detail-item"><span class="label">成立日期:</span> <span class="value">${this.currentCompany.establishmentDate ? new Date(this.currentCompany.establishmentDate).toLocaleDateString() : '-'}</span></div>
-        <div class="detail-item"><span class="label">行业排名:</span> <span class="value">第 ${this.currentCompany.ranking} 名</span></div>
         <div class="detail-item"><span class="label">经营范围:</span> <span class="value">${this.currentCompany.businessScope || '-'}</span></div>
       </div>
       

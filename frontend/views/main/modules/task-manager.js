@@ -94,8 +94,9 @@ const TaskManager = {
             setTimeout(() => {
               this.hideProgressModal();
               Utils.showMessage('数据生成完成！', 'success');
-              if (window.MainApp && window.MainApp.loadGraphData) {
-                window.MainApp.loadGraphData(this.currentTask.industryId);
+              if (window.MainApp) {
+                // 刷新行业列表
+                window.MainApp.loadIndustries();
               }
             }, 1000);
             this.stopPolling();

@@ -22,6 +22,8 @@ public class Industry extends BaseEntity {
 
     private Integer sort;
 
+    private Integer hasData;
+
     @TableField(exist = false)
     private List<Industry> children;
 }

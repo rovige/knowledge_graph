@@ -87,17 +87,32 @@ const MainApp = {
 
   async loadIndustries() {
     try {
-      const response = await Utils.api.get('/industries', {
-        current: this.currentPage.industry,
-        size: 1000
-      });
-      if (response.code === 200 || response.success) {
-        this.industriesData = response.data?.records || response.data || [];
-        this.industries = this.industriesData.filter(i => i.parentId === 0 || !i.parentId);
+      console.log('开始加载行业数据...');
+      // 系统管理页面使用所有行业（包含 hasData 标志）
+      const allResponse = await Utils.api.get('/industries/all');
+      if (allResponse.code === 200 || allResponse.success) {
+        this.industriesData = allResponse.data || [];
+        this.totalRecords.industry = this.industriesData.length;
+        console.log('系统管理行业数据:', this.industriesData.length);
+      }
+
+      // 知识图谱页面只显示有数据的行业
+      const withDataResponse = await Utils.api.get('/industries/with-data');
+      console.log('有数据的行业响应:', withDataResponse);
+      if (withDataResponse.code === 200 || withDataResponse.success) {
+        this.industries = withDataResponse.data || [];
+        console.log('有数据的行业列表:', this.industries);
         if (this.industries.length > 0) {
           this.currentIndustry = this.industries[0];
+          console.log('选中当前行业:', this.currentIndustry);
         }
-        this.totalRecords.industry = response.data?.total || this.industriesData.length;
+      }
+      
+      // 渲染行业列表并加载知识图谱
+      this.renderIndustryList();
+      if (this.currentIndustry && this.currentIndustry.id) {
+        console.log('加载知识图谱数据...');
+        await this.loadGraphData(this.currentIndustry.id);
       }
     } catch (error) {
       console.error('加载行业数据失败:', error);
@@ -378,7 +393,7 @@ const MainApp = {
               <td>${i.code}</td>
               <td>${i.sort || 0}</td>
               <td>
-                <button class="btn btn-sm btn-primary" onclick="TaskManager.generateIndustryData(${JSON.stringify(i).replace(/"/g, '&quot;')})">生成数据</button>
+                <button class="btn btn-sm ${i.hasData ? 'btn-info' : 'btn-primary'}" onclick="TaskManager.generateIndustryData(${JSON.stringify(i).replace(/"/g, '&quot;')})">${i.hasData ? '重新生成数据' : '生成数据'}</button>
                 <button class="btn btn-sm btn-primary" onclick="MainApp.openEditModal('industry', ${i.id})">编辑</button>
                 <button class="btn btn-sm btn-danger" onclick="MainApp.deleteItem('industry', ${i.id})">删除</button>
               </td>

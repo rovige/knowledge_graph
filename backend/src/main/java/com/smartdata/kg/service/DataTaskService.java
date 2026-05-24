@@ -27,6 +27,7 @@ public class DataTaskService extends ServiceImpl<DataTaskRepository, DataTask> {
     private final GraphNodeService graphNodeService;
     private final GraphEdgeService graphEdgeService;
     private final DataTaskRepository dataTaskRepository;
+    private final IndustryService industryService;
 
     private final Random random = new Random();
     private final ExecutorService executorService = Executors.newFixedThreadPool(8);
@@ -83,6 +84,8 @@ public class DataTaskService extends ServiceImpl<DataTaskRepository, DataTask> {
             generateGraphData(taskId, industryId, industryName, companies);
             
             updateTaskStatus(taskId, "COMPLETED", 100);
+            // 标记行业为已生成数据
+            updateIndustryHasData(industryId, 1);
             log.info("行业 {} 数据生成完成！", industryName);
             
         } catch (InterruptedException e) {
@@ -278,5 +281,18 @@ public class DataTaskService extends ServiceImpl<DataTaskRepository, DataTask> {
         
         graphEdgeService.saveBatch(edges);
         log.info("生成了 {} 个节点和 {} 条关系", companyNodes.size() + 1, edges.size());
+    }
+
+    private void updateIndustryHasData(Long industryId, Integer hasData) {
+        try {
+            Industry industry = industryService.getById(industryId);
+            if (industry != null) {
+                industry.setHasData(hasData);
+                industryService.updateById(industry);
+                log.info("行业 {} hasData 状态更新为: {}", industry.getName(), hasData);
+            }
+        } catch (Exception e) {
+            log.error("更新行业 hasData 状态失败", e);
+        }
     }
 }

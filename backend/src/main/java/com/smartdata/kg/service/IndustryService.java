@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smartdata.kg.common.PageResult;
+import com.smartdata.kg.entity.Company;
 import com.smartdata.kg.entity.Industry;
 import com.smartdata.kg.repository.IndustryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class IndustryService extends ServiceImpl<IndustryRepository, Industry> {
@@ -24,6 +28,7 @@ public class IndustryService extends ServiceImpl<IndustryRepository, Industry> {
         }
         wrapper.orderByAsc(Industry::getSort);
         page(page, wrapper);
+        
         return new PageResult<>(page.getTotal(), page.getRecords());
     }
 
@@ -37,6 +42,15 @@ public class IndustryService extends ServiceImpl<IndustryRepository, Industry> {
     public List<Industry> listAll() {
         return list(new LambdaQueryWrapper<Industry>()
                 .orderByAsc(Industry::getSort));
+    }
+
+    public List<Industry> listWithData() {
+        // 直接查询 has_data = 1 的行业
+        List<Industry> industries = list(new LambdaQueryWrapper<Industry>()
+                .eq(Industry::getHasData, 1)
+                .orderByAsc(Industry::getSort));
+        
+        return industries;
     }
 
     private List<Industry> buildTree(List<Industry> industries, Long parentId) {
