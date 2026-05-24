@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识图谱管理系统</title>
+  <link rel="stylesheet" href="../../assets/css/common.css">
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div class="main-container">
+    <header class="header">
+      <div class="header-left">
+      <h1 class="logo">知识图谱管理系统</h1>
+      </div>
+      <nav class="header-nav">
+        <a href="#" class="nav-item active" data-page="graph">知识图谱</a>
+        <a href="#" class="nav-item" data-page="system">系统管理</a>
+      </nav>
+      <div class="header-right">
+        <span class="user-info" id="userInfo"></span>
+        <button class="btn btn-sm btn-default" id="logoutBtn">退出</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-graph active" id="pageGraph">
+        <aside class="sidebar-left">
+          <div class="sidebar-header">
+          <h3>行业列表</h3>
+          </div>
+          <div class="industry-list" id="industryList"></div>
+          <div class="sidebar-header" style="margin-top: 16px;">
+          <h3>TOP企业</h3>
+          </div>
+          <div class="company-list" id="companyList"></div>
+        </aside>
+
+        <main class="graph-area">
+          <div class="graph-toolbar">
+            <button class="btn btn-sm btn-default" id="zoomInBtn">放大</button>
+            <button class="btn btn-sm btn-default" id="zoomOutBtn">缩小</button>
+            <button class="btn btn-sm btn-default" id="resetZoomBtn">重置</button>
+            <button class="btn btn-sm btn-primary" id="maximizeBtn">最大化</button>
+          </div>
+          <div class="graph-container" id="graphContainer"></div>
+        </main>
+
+        <aside class="sidebar-right">
+          <div class="sidebar-header">
+          <h3>企业详情</h3>
+          </div>
+          <div class="property-panel" id="propertyPanel">
+            <div class="empty-tip">请点击企业节点查看详情</div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="page-system" id="pageSystem">
+        <div class="system-layout">
+          <aside class="system-sidebar">
+            <div class="sidebar-title">系统管理</div>
+            <div class="system-menu" id="systemMenu">
+              <div class="menu-item active" data-tab="user">
+                <span class="menu-icon">👥</span> 用户管理
+              </div>
+              <div class="menu-item" data-tab="role">
+                <span class="menu-icon">🔐</span> 角色管理
+              </div>
+              <div class="menu-item" data-tab="permission">
+                <span class="menu-icon">🔑</span> 权限管理
+              </div>
+              <div class="menu-item" data-tab="menu">
+                <span class="menu-icon">📋</span> 菜单管理
+              </div>
+              <div class="menu-item" data-tab="industry">
+                <span class="menu-icon">🏢</span> 行业管理
+              </div>
+              <div class="menu-item" data-tab="entity">
+                <span class="menu-icon">📊</span> 实体管理
+              </div>
+              <div class="menu-item" data-tab="relation">
+                <span class="menu-icon">🔗</span> 关系管理
+              </div>
+              <div class="menu-item" data-tab="task">
+                <span class="menu-icon">⚙️</span> 任务管理
+              </div>
+            </div>
+          </aside>
+          <main class="system-content">
+            <div class="content-header" id="contentHeader">
+              <h2 class="content-title">用户管理</h2>
+            </div>
+            <div class="content-body">
+              <div class="panel active" id="panelUser"></div>
+              <div class="panel" id="panelRole"></div>
+              <div class="panel" id="panelPermission"></div>
+              <div class="panel" id="panelMenu"></div>
+              <div class="panel" id="panelIndustry"></div>
+              <div class="panel" id="panelEntity"></div>
+              <div class="panel" id="panelRelation"></div>
+              <div class="panel" id="panelTask"></div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑弹窗 -->
+  <div class="modal-overlay" id="editModalOverlay" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editModalTitle">编辑</h3>
+        <button class="modal-close" id="editModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-container" id="editModalForm"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" id="editModalCancel">取消</button>
+        <button class="btn btn-primary" id="editModalSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 进度弹窗 -->
+  <div class="modal-overlay" id="progressModalOverlay" style="display: none;">
+    <div class="modal progress-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⏳ 正在生成数据</h3>
+      </div>
+      <div class="modal-body">
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-industry-name" id="progressIndustryName"></div>
+          <div class="progress-step" id="progressStep"></div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="progress-text" id="progressText"></div>
+          <div class="progress-estimate" id="progressEstimate"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="../../assets/js/utils.js"></script>
+  <script src="modules/graph-core.js"></script>
+  <script src="modules/task-manager.js"></script>
+  <script src="modules/company-manager.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

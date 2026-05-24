@@ -1,0 +1,117 @@
+========================================
+修复记录
+时间: 2026-05-24 01:05:00
+主题: 完善系统管理CRUD功能 - 模拟数据与真实API双重支持
+========================================
+
+1. 修改内容
+-----------
+
+1.1 后端 MenuService.java 修改
+- 新增 page 方法：支持数据库分页查询
+- 支持按关键词搜索（菜单名称或路径）
+- 按排序字段升序排列
+
+1.2 后端 MenuController.java 修改
+- 新增 GET /menus 接口：返回分页数据
+- 接口支持 current、size、keyword 参数
+- 保持原有的 tree、all、get、save、update、delete 接口
+
+1.3 前端 utils.js 修改
+- 新增 api 对象，包含完整的 HTTP 请求工具
+- 自动处理 token 认证
+- 自动处理 401 未授权响应
+- 优化 JSON 解析错误处理
+- 提供 get、post、put、delete 方法
+- baseUrl: 'http://localhost:8080'
+
+1.4 前端 main.js 重大重构
+- 新增 useMockData 标志：默认使用模拟数据，有 token 时自动切换到真实 API
+- 新增 tryLoadApiData() 方法：尝试连接后端并切换数据源
+- 新增完整的模拟数据：
+  - users（12条，含分页）
+  - roles（6条）
+  - permissions（20条）
+  - menus（11条，含系统管理、知识图谱等完整菜单结构）
+- 完善的增删改查功能：
+  - addUser/editUser/deleteUser
+  - addRole/editRole/deleteRole
+  - addPermission/editPermission/deletePermission
+  - addMenu/editMenu/deleteMenu
+- 新增 getPaginatedData()：模拟数据的分页逻辑
+- 更新 renderPagination()：显示 (模拟数据) 标签
+- 更新 changePage()：支持 API 模式重新加载数据
+- 更新 saveEdit()：支持模拟数据和 API 数据的保存
+- 更新 bindEvents()：添加 editModalClose 事件绑定
+- 菜单数据包含「实体管理」、「关系管理」等完整菜单
+
+1.5 前端 main.html 修改
+- 新增编辑弹窗的 HTML 结构
+- 包含 modal-header、modal-body、modal-footer
+- 编辑表单容器
+- 取消、保存按钮
+
+1.6 前端 main.css 修改
+- 新增弹窗样式：modal-overlay、modal
+- 新增弹窗头部、内容、底部样式
+- 新增表单样式：form-container、form-group
+- 新增输入框、文本框、下拉框样式
+- 新增弹窗动画效果
+
+2. 修改文件
+-----------
+后端:
+- src/main/java/com/smartdata/kg/service/MenuService.java
+- src/main/java/com/smartdata/kg/controller/MenuController.java
+
+前端:
+- assets/js/utils.js
+- views/main/main.js
+- views/main/main.html
+- views/main/main.css
+
+3. 功能说明
+-----------
+
+3.1 数据模式
+- 模拟数据模式（默认）：无需后端，直接显示完整功能
+- API 数据模式：登录后获取 token，自动切换到真实后端数据
+
+3.2 完整的系统管理功能
+- 用户管理：增删改查、状态管理、分页
+- 角色管理：增删改查、状态管理、分页
+- 权限管理：增删改查、类型管理、分页
+- 菜单管理：增删改查、路径图标、父子级菜单、分页
+
+3.3 菜单系统
+- 包含「知识图谱」菜单
+- 包含「实体管理」子菜单
+- 包含「关系管理」子菜单
+- 完整的树形菜单结构
+
+3.4 交互特性
+- 编辑弹窗：新增和编辑共用
+- 确认对话框：删除前确认
+- 消息提示：操作成功/失败提示
+- 分页组件：支持页码跳转
+- 左侧菜单：点击切换模块
+- 响应式设计：适配各种屏幕
+
+4. 使用说明
+-----------
+- 直接打开：使用模拟数据，所有功能完整可用
+- 启动后端后：登录获取 token，页面自动切换到真实 API
+- 后端地址：http://localhost:8080
+- 数据库：MySQL（kg_system）+ Neo4j
+
+5. 关键技术点
+-----------
+- 双重数据源支持：模拟数据和 API 无缝切换
+- 完善的错误处理：API 请求失败自动降级
+- 数据库分页：MyBatis-Plus 分页插件
+- JWT 认证：token 自动管理
+- 完整的 CRUD：统一的操作逻辑
+- 美观的 UI：精心设计的样式
+
+========================================
+修复完成

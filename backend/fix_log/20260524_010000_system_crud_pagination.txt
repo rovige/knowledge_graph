@@ -1,0 +1,72 @@
+========================================
+修复记录
+时间: 2026-05-24 01:00:00
+主题: 实现完整的系统管理CRUD功能和数据库分页
+========================================
+
+1. 修改内容
+-----------
+1.1 后端 MenuService.java 修改
+- 添加 page() 方法，实现数据库分页查询
+- 支持按名称和路径模糊搜索
+- 按排序字段升序排列
+
+1.2 后端 MenuController.java 修改
+- 添加 GET /menus 接口，返回分页数据
+- 保持原有的 tree、all、get、save、update、delete 接口
+
+1.3 前端 utils.js 修改
+- 添加 api 工具对象
+- 包含 get、post、put、delete 方法
+- 自动处理 token 认证
+- 自动处理 401 未授权响应
+
+1.4 前端 main.js 大幅重构
+- 移除模拟数据，改为从后端 API 加载
+- 添加 loadUsers()、loadRoles()、loadPermissions()、loadMenus() 方法
+- 实现 addXxx()、editXxx()、deleteXxx() 方法
+- 实现 openEditModal()、closeEditModal()、renderEditForm()、saveEdit() 方法
+- 更新 changePage() 方法，支持重新加载分页数据
+- 初始化时同时加载所有数据
+
+1.5 前端 main.html 修改
+- 添加编辑弹窗 HTML 结构
+- 包含标题、表单容器、取消和保存按钮
+
+1.6 前端 main.css 修改
+- 添加 modal-overlay、modal 样式
+- 添加 modal-header、modal-body、modal-footer 样式
+- 添加 form-container、form-group 样式
+- 添加 input、textarea、select 的样式和状态
+
+2. 修改文件
+-----------
+- backend/src/main/java/com/smartdata/kg/service/MenuService.java
+- backend/src/main/java/com/smartdata/kg/controller/MenuController.java
+- frontend/assets/js/utils.js
+- frontend/views/main/main.js
+- frontend/views/main/main.html
+- frontend/views/main/main.css
+
+3. 功能说明
+-----------
+- 用户管理：完整的增删改查，数据库分页
+- 角色管理：完整的增删改查，数据库分页
+- 权限管理：完整的增删改查，数据库分页
+- 菜单管理：完整的增删改查，数据库分页
+- 所有管理功能都通过 REST API 与后端对接
+- 编辑弹窗支持新增和编辑两种模式
+- 删除前有确认提示
+- 操作成功/失败有消息提示
+
+4. 权限说明
+-----------
+数据库中已预置的菜单包括：
+- 系统首页
+- 系统管理（包含用户、角色、权限、菜单、行业管理子菜单）
+- 知识图谱（包含图谱浏览、实体管理、关系管理子菜单）
+
+管理员用户拥有所有权限，可以看到所有菜单。
+
+========================================
+修复完成

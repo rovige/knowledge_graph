@@ -1,0 +1,55 @@
+========================================
+修复记录
+时间: 2026-05-24 01:15:00
+主题: 修复权限加载问题（Access Denied错误）
+========================================
+
+问题描述
+-----------
+用户可以成功登录，但访问需要权限的API时出现 "Access Denied" 错误。
+原因：用户权限列表没有从数据库正确加载。
+
+修复内容
+-----------
+1. UserService.java
+   - 新增 getPermissionsByUserId 方法
+   - 该方法从数据库查询用户的所有角色和对应的权限
+   - 返回权限代码列表（如 sys:user:list）
+
+2. UserDetailsServiceImpl.java
+   - 修改 loadUserByUsername 方法
+   - 调用 userService.getPermissionsByUserId 获取用户权限
+   - 将权限列表正确传入 LoginUser
+
+3. JwtAuthenticationFilter.java
+   - 修改权限加载逻辑
+   - 从数据库查询完整的用户信息
+   - 调用 getPermissionsByUserId 加载权限
+   - 正确构建带权限的 LoginUser 对象
+
+修复的问题
+-----------
+- 权限列表从空变成了从数据库真实加载
+- @PreAuthorize 注解现在可以正确验证权限了
+- 用户管理等模块现在可以正常访问了
+
+如何应用修复
+-----------
+1. 停止当前的后端服务（按 Ctrl+C）
+2. 重新启动后端服务：
+   cd d:\ai_workspace\knowledge_graph\backend
+   mvn spring-boot:run
+   或运行 FAST_START.bat
+3. 重新登录应用
+
+验证权限
+-----------
+管理员用户（admin）应该拥有以下权限：
+- sys:user:list, sys:user:add, sys:user:edit, sys:user:delete
+- sys:role:list, sys:role:add, sys:role:edit, sys:role:delete
+- sys:permission:list, sys:permission:add, sys:permission:edit, sys:permission:delete
+- sys:menu:list, sys:menu:add, sys:menu:edit, sys:menu:delete
+- 以及其他所有系统权限
+
+========================================
+修复完成
